@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guestbook - v2</title>
+  <style>
+    :root{font-family:Inter,Arial,sans-serif;color:#161616;background:#f4f4f4}
+    *{box-sizing:border-box}body{margin:0}.banner{height:10px;background:#0f62fe}
+    main{max-width:760px;margin:64px auto;padding:0 20px}
+    .card{background:white;padding:36px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+    h1{font-size:2.5rem;margin-top:0}form{display:flex;gap:10px}
+    input{flex:1;padding:13px;border:1px solid #8d8d8d;font:inherit}
+    button{padding:13px 24px;border:0;background:#0f62fe;color:white;font-weight:700;cursor:pointer}
+    ul{padding:0;list-style:none}li{margin-top:12px;padding:14px;background:#edf5ff;border-left:4px solid #0f62fe}
+    .status{min-height:24px;color:#525252}
+  </style>
+</head>
+<body>
+  <div class="banner"></div>
+  <main>
+    <section class="card">
+      <h1>Guestbook - v2</h1>
+      <p>Leave a message and see it appear below.</p>
+      <form id="guestbook-form">
+        <input id="message" maxlength="280" required aria-label="Guestbook message" placeholder="Enter your message">
+        <button type="submit">Submit</button>
+      </form>
+      <p id="status" class="status" role="status"></p>
+      <ul id="messages"></ul>
+    </section>
+  </main>
+  <script>
+    const form = document.querySelector("#guestbook-form");
+    const input = document.querySelector("#message");
+    const list = document.querySelector("#messages");
+    const status = document.querySelector("#status");
+
+    function render(messages) {
+      list.replaceChildren(...messages.map(message => {
+        const item = document.createElement("li");
+        item.textContent = message.text;
+        return item;
+      }));
+    }
+
+    async function loadMessages() {
+      const response = await fetch("/api/messages");
+      render(await response.json());
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      status.textContent = "Saving...";
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text: input.value})
+      });
+      if (!response.ok) {
+        status.textContent = "Please enter a message.";
+        return;
+      }
+      input.value = "";
+      status.textContent = "Message saved.";
+      await loadMessages();
+    });
+
+    loadMessages().catch(() => { status.textContent = "Unable to load messages."; });
+  </script>
+</body>
+</html>
