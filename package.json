@@ -1,0 +1,16 @@
+{
+  "name": "guestbook-kubernetes-final-project",
+  "version": "2.0.0",
+  "description": "Guestbook application for IBM Cloud Kubernetes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
